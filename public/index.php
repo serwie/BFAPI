@@ -28,16 +28,18 @@ use Facebook\FacebookRequestException;
 // unset($_SESSION['access_token']);
 
 
-FacebookSession::setDefaultApplication('1593262114252926', 'cf4af33edf5e6ee29f928be0b4772a03');
+FacebookSession::setDefaultApplication('xxx', 'xxx');
 
-$helper = new FacebookRedirectLoginHelper('http://facebookApi.com');
+$helper = new FacebookRedirectLoginHelper('http://BFAPI.com');
 $loginUrl = $helper->getLoginUrl();
 ?> <a class='login' href='<?php echo $loginUrl; ?>'>Authenticate</a>
 
 <?php 
 
 try {
+var_dump($_GET ['code']);
 	$session = $helper->getSessionFromRedirect();
+	var_dump($session);
 } catch (FacebookRequestException $ex) {// When Facebook returns an error
 	echo "Error from FB";
 }catch(\Exception $ex) { // When validation fails or other local issues
@@ -49,6 +51,7 @@ try {
  */
 if ($session) { // Logged in
 	echo "<b>-Graph API-</b><br><br>";
+	
 	$request = new FacebookRequest($session, 'GET', '/me');
 	$response = $request->execute();
 	$graphObject = $response->getGraphObject();
