@@ -23,7 +23,13 @@
  */
 namespace Facebook\HttpClients;
 
+
+require_once 'Facebook/HttpClients/FacebookHttpable.php';
+require_once 'Facebook/HttpClients/FacebookCurl.php';
+
 use Facebook\FacebookSDKException;
+use Facebook\HttpClients\FacebookHttpable;
+use Facebook\HttpClients\FacebookCurl;
 
 /**
  * Class FacebookCurlHttpClient
