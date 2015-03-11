@@ -105,10 +105,11 @@ if ($session) { // Logged in
 	$request = new FacebookRequest($session, 'GET', '/me');
 	$response = $request->execute();
 	//get response
-	$graphObject = $response->getGraphObject();
+	$graphObject = $response->getGraphObject();// hier kann man auch pageid erhalten
 	var_dump($graphObject);
 	displayCustomFBPageFeed($session);
-
+	usingSocialPlugin();
+	
 } else {
   // show login url
   echo '<a href="' . $helper->getLoginUrl() . '">Login</a>';
@@ -118,10 +119,6 @@ if ($session) { // Logged in
 function displayCustomFBPageFeed($session){
 	
 	$pageid = '318251298186105'; // from a site in FB
-	$request = new FacebookRequest($session, 'GET', '/{page-id}');
-	$response = $request->execute();
-	echo "<br> Request Page Id <br/>";
-	var_dump($response);
 	
 	$request = new FacebookRequest($session, 'GET', '/'.$pageid);
 	$response = $request->execute();	
@@ -199,6 +196,11 @@ function displayCustomFBPageFeed($session){
 
 }
 
-?>
+function usingSocialPlugin(){
+	
+include '/var/www/BFAPI/public/socialPlugin.html'; 
+}
+
+
 
 

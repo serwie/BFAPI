@@ -1,0 +1,52 @@
+<!doctype html>
+ <html>
+<head>
+<title>Facebook Api and Social Plugin</title>
+</head>
+<body>
+<script >
+	document.write("BP1 <br>");
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1593262114252926',
+          xfbml      : true,
+          version    : 'v2.1'
+        });
+      };
+      document.write('BP2<br>');
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+	
+	<div id="fb-root"></div>
+	 <script>
+	 document.write('BP3<br>');
+	(function(d, s, id) {
+	var js, fjs = d.getElementsByTagName(s)[0];
+	if (d.getElementById(id)) return;
+	js = d.createElement(s); js.id = id;
+	js.src = "//connect.facebook.net/de_DE/sdk.js#xfbml=1&appId=1593262114252926&version=v2.0";
+	fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+	document.write('BP4<br>');</script>
+
+<div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/de_DE/sdk.js#xfbml=1&appId=1593262114252926&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<div class="fb-like" data-href="http://BFAPI.com" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
+
+</body>
+</html>
