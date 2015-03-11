@@ -106,15 +106,9 @@ if ($session) { // Logged in
 	$response = $request->execute();
 	//get response
 	$graphObject = $response->getGraphObject();
-	// print data
-	//echo  print_r( $graphObject, 1 );
 	var_dump($graphObject);
-	
-	
 	displayCustomFBPageFeed($session);
-	
-	
-	
+
 } else {
   // show login url
   echo '<a href="' . $helper->getLoginUrl() . '">Login</a>';
@@ -122,17 +116,89 @@ if ($session) { // Logged in
 
 // from callmenick.com/2013/03/14/displaying-a-custom-facebook-page-feed/
 function displayCustomFBPageFeed($session){
-	// first get pageid
 	
-	
-	
-	$pageid = '100001456337135';
-	//$request = new FacebookRequest($session, 'GET', '/{'.$pageid.'}/feed');
-	$request = new FacebookRequest($session, 'GET', '/100001456337135/feed');
+	$pageid = '318251298186105'; // from a site in FB
+	$request = new FacebookRequest($session, 'GET', '/{page-id}');
 	$response = $request->execute();
+	echo "<br> Request Page Id <br/>";
 	var_dump($response);
+	
+	$request = new FacebookRequest($session, 'GET', '/'.$pageid);
+	$response = $request->execute();	
+	$generalInfo = $response->getGraphObject()->asArray();
+	
+	
+ 	$request = new FacebookRequest($session, 'GET', '/'.$pageid.'/feed');
+	$response = $request->execute();
+	$contentFeed = $response->getGraphObject()->asArray();
+	
+	
+	?>
+	<h1><?php echo $generalInfo['name']; ?> (<?php echo $generalInfo['id']; ?>)</h1>
+	<p><img src="http://graph.facebook.com/<?php echo $generalInfo['id'];?>/picture?width=180&height=180" /></p>
+	<p>About: <?php echo $generalInfo['about']; ?></p>
+	<?php 
+
+
+
+// 	echo "<div class=\"fb-feed\">";
+	
+	echo "<div >";
+	// set counter to 0, because we only want to display 10 posts
+	$i = 0;
+	foreach($contentFeed['data'] as $post) {
+		
+		if ($post->type == 'status' || $post->type == 'link' || $post->type == 'photo') {
+	
+			// open up an fb-update div
+// 			echo "<div class=\"fb-update\">";
+			echo "<div >";
+			// post the time
+	
+			// check if post type is a status
+			if ($post->type == 'status') {
+				echo "<h2>Status updated on: " . date("jS M, Y", (strtotime($post->created_time))) . "</h2>";
+				echo "<p>" . $post->message . "</p>";
+			}
+	
+			// check if post type is a link
+			if ($post->type == 'link') {
+				//echo "<h2>Link posted on: " . date("jS M, Y", (strtotime(strtotime($post->created_time)))) . "</h2>";
+				$creationDate = strtotime($post->created_time);
+				$creationDate = date('jS M, Y', $creationDate);
+				echo "<hr>";
+				echo "<h2>Link posted on: " . $creationDate."</h2>";
+				echo "<p>" . $post->name . "</p>";
+				echo "<p><a href=\"" . $post->link . "\" target=\"_blank\">" . $post->link . "</a></p>";
+				echo "</hr>";
+			}
+	
+			// check if post type is a photo
+			if ($post->type == 'photo') {
+				echo "<h2>Photo posted on: " . date("jS M, Y", (strtotime(strtotime($post->created_time)))) . "</h2>";
+				if (empty($post->story) === false) {
+					echo "<p>" . $post->story . "</p>";
+				} elseif (empty($post->message) === false) {
+					echo "<p>" . $post->message . "</p>";
+				}
+				echo "<p><a href=\"" . $post->link . "\" target=\"_blank\">View photo &rarr;</a></p>";
+			}
+	
+			echo "</div>"; // close fb-update div
+	
+			$i++; // add 1 to the counter if our condition for $post['type'] is met
+		}
+	
+		//  break out of the loop if counter has reached 10
+		if ($i == 10) {
+			break;
+		}
+	} // end the foreach statement
+	
+	echo "</div>";
+
 }
 
-
-
 ?>
+
+
