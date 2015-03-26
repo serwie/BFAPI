@@ -1,0 +1,27 @@
+<!-- Code from https://developers.facebook.com/docs/plugins/embedded-posts-->
+
+<html>
+<body>
+<div id="fb-root"></div>
+<script>
+// 1 Getting your Code from a Post
+(function(d, s, id) {  
+	var js, fjs = d.getElementsByTagName(s)[0];  
+	if (d.getElementById(id)) return;  
+	js = d.createElement(s); js.id = id;  
+	js.src = "//connect.facebook.net/de_DE/sdk.js#xfbml=1&version=v2.3";  
+	fjs.parentNode.insertBefore(js, fjs);}
+(document, 'script', 'facebook-jssdk'));
+</script>
+<div class="fb-post" data-href="https://www.facebook.com/callmenick1/posts/757983270983182" data-width="500">
+	<div class="fb-xfbml-parse-ignore">
+		<blockquote cite="https://www.facebook.com/callmenick1/posts/757983270983182">
+			<p>A very slight but neat optimisation to the box-sizing: border-box reset. Interesting discussion in the comments too!</p>
+			Posted by <a href="https://www.facebook.com/callmenick1">Nick Salloum - Web Design and Development</a> 
+			on 
+			<a href="https://www.facebook.com/callmenick1/posts/757983270983182">Freitag, 20. März 2015</a>
+		</blockquote>
+	</div>
+</div>
+</body>
+</html>

@@ -24,6 +24,7 @@ require_once 'Facebook/Entities/AccessToken.php';
 require_once 'Facebook/HttpClients/FacebookCurlHttpClient.php';
 require_once 'Facebook/HttpClients/FacebookHttpable.php';
 require_once 'Facebook/GraphSessionInfo.php';
+require_once 'Facebook/GraphUser.php';
 
 use Facebook\FacebookSession;
 use Facebook\FacebookRedirectLoginHelper;
@@ -37,6 +38,7 @@ use Facebook\Entities\AccessToken;
 use Facebook\HttpClients\FacebookCurlHttpClient;
 use Facebook\HttpClients\FacebookHttpable;
 use Facebook\GraphSessionInfo;
+use Facebook\GraphUser;
 
 
 $appid = 'xxx'; // your AppID
@@ -80,8 +82,6 @@ if( isset($_SESSION['token']))
 		$session ='';
 	}
 }
-
-
  //see if we have a session
 if ($session) { // Logged in
 	
@@ -104,41 +104,131 @@ if ($session) { // Logged in
 	// graph api request for user data
 	$request = new FacebookRequest($session, 'GET', '/me');
 	$response = $request->execute();
-	//get response
-	$graphObject = $response->getGraphObject();// hier kann man auch pageid erhalten
-	var_dump($graphObject);
-	displayCustomFBPageFeed($session);
-	usingSocialPlugin();
-	
+		// get response
+	$graphObject = $response->getGraphObject (); // hier kann man auch pageid erhalten
+	var_dump ( $graphObject );
+	retrieveUserProfile($session);
+	getPostsFromProfile ( $session );
+	usingSocialPlugin ();
+	//displayCustomFBPageFeed ( $session ); //use to show more post types
 } else {
-  // show login url
-  echo '<a href="' . $helper->getLoginUrl() . '">Login</a>';
+	// show login url
+	echo '<a href="' . $helper->getLoginUrl () . '">Login</a>';
 }
 
-// from callmenick.com/2013/03/14/displaying-a-custom-facebook-page-feed/
+function retrieveUserProfile($session) {
+	echo "<hr NOSHADE SIZE=10 COLOR=#00CC00>";
+	echo "<h2> Retrieve user profile</h2>";
+	try {
+		$user_profile = (new FacebookRequest($session, 'GET', '/me' ))->execute()->getGraphObject(GraphUser::className());
+		echo "Name: " . $user_profile->getName()."<br>";
+		echo "User Id: ". $user_profile->getId()."<br>";
+		echo "Zum Profil: ".'<a href="'.$user_profile->getLink().'">'.$user_profile->getLink().'</a>';
+	} catch(FacebookRequestException $e) {
+		echo "Exception occured, code: " . $e->getCode();
+		echo " with message: " . $e->getMessage();
+	}
+	
+}
+
+/**
+ * Use Embedded Posts https://developers.facebook.com/docs/plugins/embedded-posts
+ *
+ */
+function usingSocialPlugin(){
+
+	echo "<hr NOSHADE SIZE=10 COLOR=#00CC00>";
+	echo "<h2> Use the Social PlugIn </h2>";
+	echo "<h3> 1. Getting code from a post </h3>";
+	//echo $this->inlineScript()->prependFile($this->basePath('js/fbSocialPlugin.html'));
+	include '/var/www/BFAPI/public/html/gettingCodeFromPost.html';
+
+}
+
+//http://www.finalwebsites.com/facebook-api-php-tutorial/
+function getPostsFromProfile($session){
+	echo "<hr NOSHADE SIZE=10 COLOR=#00CC00>";
+	echo "<h2> Get posts from a profile </h2>";
+	try {
+
+		$user_feed = (new FacebookRequest($session, 'GET', '/173352899844/feed' ))->execute()->getGraphObject();
+		$user_feed=$user_feed->asArray();
+		echo "<div >";
+		// set counter to 0, because we only want to display 10 posts
+		$i = 0;
+
+		foreach($user_feed['data'] as $post) {
+			if ($post->type == 'status' || $post->type == 'link' || $post->type == 'photo') {
+				if ($post->type == 'photo') {
+					//var_dump($post);
+					echo "<h3>Photo posted on: " . date("jS M, Y", (strtotime($post->created_time))) . "</h3>";
+
+					if (empty($post->story) === false) {
+						echo "<p><b> Story:</b> <br>" .htmlentities($post->story, ENT_QUOTES). "</p>";
+					}if (empty($post->message) === false) {
+						echo "<p><b>Message: </b><br>" . htmlentities($post->message, ENT_QUOTES) . "</p>";
+					}
+					echo "<p><a href=\"" . $post->link . "\" target=\"_blank\">View photo &rarr;</a></p>";
+
+					?><p>
+					<img src="<?php echo $post->picture; ?>" />
+					</p>
+					<?php
+					getPictureComments($post->object_id, $session);
+				}
+			} 
+			$i++;
+			if ($i == 10){
+				break;
+			}
+		}
+		echo"</div>";
+		
+	} catch(FacebookRequestException $e) {
+		echo "Exception occured, code: " . $e->getCode();
+		echo " with message: " . $e->getMessage();
+	}
+}
+
+function getPictureComments($objectId, $session) {
+	$photo_comments = (new FacebookRequest ( $session, 'GET', '/' . $objectId . '/comments' ))->execute ()->getGraphObject ();
+	$photo_comments = $photo_comments->asArray ();
+	echo "<p>Comments : <br></p>";
+	foreach ( $photo_comments ['data'] as $comment ) {
+			echo "<ul>";
+			echo "<li>" . htmlentities($comment->message, ENT_QUOTES) . "</li>";
+			echo "</ul>";
+	}
+
+}
+
+/**
+ * from callmenick.com/2013/03/14/displaying-a-custom-facebook-page-feed/
+ * used to show several posttypes
+ */ 
 function displayCustomFBPageFeed($session){
 	
+	echo "<hr NOSHADE SIZE=10 COLOR=#00CC00>";
+	echo "<h2> Display custom facebook page feed</h2>";
 	$pageid = '318251298186105'; // from a site in FB
 	
-	$request = new FacebookRequest($session, 'GET', '/'.$pageid);
-	$response = $request->execute();	
-	$generalInfo = $response->getGraphObject()->asArray();
+	$request = new FacebookRequest ( $session, 'GET', '/' . $pageid );
+	$response = $request->execute ();
+	$generalInfo = $response->getGraphObject ()->asArray ();
 	
-	
- 	$request = new FacebookRequest($session, 'GET', '/'.$pageid.'/feed');
-	$response = $request->execute();
+	$request = new FacebookRequest ( $session, 'GET', '/' . $pageid . '/feed' );
+	$response = $request->execute ();
 	$contentFeed = $response->getGraphObject()->asArray();
 	
 	
 	?>
-	<h1><?php echo $generalInfo['name']; ?> (<?php echo $generalInfo['id']; ?>)</h1>
-	<p><img src="http://graph.facebook.com/<?php echo $generalInfo['id'];?>/picture?width=180&height=180" /></p>
-	<p>About: <?php echo $generalInfo['about']; ?></p>
-	<?php 
-
-
-
-// 	echo "<div class=\"fb-feed\">";
+<h1><?php echo $generalInfo['name']; ?> (<?php echo $generalInfo['id']; ?>)</h1>
+<p>
+	<img
+		src="http://graph.facebook.com/<?php echo $generalInfo['id'];?>/picture?width=180&height=180" />
+</p>
+<p>About: <?php echo $generalInfo['about']; ?></p>
+<?php 
 	
 	echo "<div >";
 	// set counter to 0, because we only want to display 10 posts
@@ -148,23 +238,20 @@ function displayCustomFBPageFeed($session){
 		if ($post->type == 'status' || $post->type == 'link' || $post->type == 'photo') {
 	
 			// open up an fb-update div
-// 			echo "<div class=\"fb-update\">";
 			echo "<div >";
-			// post the time
 	
 			// check if post type is a status
 			if ($post->type == 'status') {
-				echo "<h2>Status updated on: " . date("jS M, Y", (strtotime($post->created_time))) . "</h2>";
+				echo "<h3>Status updated on: " . date("jS M, Y", (strtotime($post->created_time))) . "</h3>";
 				echo "<p>" . $post->message . "</p>";
 			}
 	
 			// check if post type is a link
-			if ($post->type == 'link') {
-				//echo "<h2>Link posted on: " . date("jS M, Y", (strtotime(strtotime($post->created_time)))) . "</h2>";
+			if ($post->type == 'link') {	
 				$creationDate = strtotime($post->created_time);
 				$creationDate = date('jS M, Y', $creationDate);
 				echo "<hr>";
-				echo "<h2>Link posted on: " . $creationDate."</h2>";
+				echo "<h3>Link posted on: " . $creationDate."</h3>";
 				echo "<p>" . $post->name . "</p>";
 				echo "<p><a href=\"" . $post->link . "\" target=\"_blank\">" . $post->link . "</a></p>";
 				echo "</hr>";
@@ -172,7 +259,7 @@ function displayCustomFBPageFeed($session){
 	
 			// check if post type is a photo
 			if ($post->type == 'photo') {
-				echo "<h2>Photo posted on: " . date("jS M, Y", (strtotime(strtotime($post->created_time)))) . "</h2>";
+				echo "<h3>Photo posted on: " . date("jS M, Y", (strtotime($post->created_time))) . "</h3>";
 				if (empty($post->story) === false) {
 					echo "<p>" . $post->story . "</p>";
 				} elseif (empty($post->message) === false) {
@@ -181,7 +268,7 @@ function displayCustomFBPageFeed($session){
 				echo "<p><a href=\"" . $post->link . "\" target=\"_blank\">View photo &rarr;</a></p>";
 			}
 	
-			echo "</div>"; // close fb-update div
+			echo "</div>"; 
 	
 			$i++; // add 1 to the counter if our condition for $post['type'] is met
 		}
@@ -196,10 +283,9 @@ function displayCustomFBPageFeed($session){
 
 }
 
-function usingSocialPlugin(){
-	
-include '/var/www/BFAPI/public/socialPlugin.html'; 
-}
+
+
+
 
 
 
