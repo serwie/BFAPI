@@ -41,8 +41,8 @@ use Facebook\GraphSessionInfo;
 use Facebook\GraphUser;
 // unset($_SESSION['token']);
 
-$appid = '1593262114252926'; // your AppID
-$secret = 'cf4af33edf5e6ee29f928be0b4772a03'; // your secret
+$appid = 'xxx'; // your AppID
+$secret = 'xxx'; // your secret
 
 
 // unset($_SESSION['access_token']);
