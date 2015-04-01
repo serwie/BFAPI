@@ -39,10 +39,10 @@ use Facebook\HttpClients\FacebookCurlHttpClient;
 use Facebook\HttpClients\FacebookHttpable;
 use Facebook\GraphSessionInfo;
 use Facebook\GraphUser;
+// unset($_SESSION['token']);
 
-
-$appid = 'xxx'; // your AppID
-$secret = 'xxx'; // your secret
+$appid = '1593262114252926'; // your AppID
+$secret = 'cf4af33edf5e6ee29f928be0b4772a03'; // your secret
 
 
 // unset($_SESSION['access_token']);
@@ -85,7 +85,9 @@ if( isset($_SESSION['token']))
  //see if we have a session
 if ($session) { // Logged in
 	
-	echo "<b>-Session Info-</b><br><br>";
+	echo '<a href="' . $helper->getLogoutUrl ($session, 'http://BFAPI.com/NotLoggedIn.php?'. $helper->getLoginUrl () ) . '">Logout</a>';//Logout if you want
+	//echo "<br>".$helper->getLoginUrl (); 
+	echo "<br><br><br><b>-Session Info-</b><br>";
 	// set the PHP Session 'token' to the current session token
 	$_SESSION['token'] = $session->getToken();
 	// SessionInfo
